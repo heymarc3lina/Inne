@@ -1,67 +1,86 @@
-#include  <iostream>
-#include <fstream>
-#include <Windows.h>
+#include <iostream>
 #include <string>
 using namespace std;
 
-bool sudoku(const string nazwaPliku) {
-	string daneZPliku[9];
-	string pomocniczy[9];
 
-	ifstream plik(nazwaPliku);
-	if (plik) {
-		for (int i = 0; i < 9; i++) {
-			plik >> daneZPliku[i];
+struct Student {
+	string nazwisko;
+	Student * pNext;
+	double ocena;
+};
 
-		}
-		plik.close();
+struct Egzaminator {
+	string nazwisko;
+	Egzaminator * pNext;
+	Student * pStudenci;
+};
+
+
+Egzaminator * znajdzNajmniejObciazonego(Egzaminator * pHead) {
+	if (not pHead) {
+		return nullptr;
 	}
-
-	for (int w = 0; w < 9; w++) {
-		for (int i = 0; i < 9; i++) {
-			for (int l = 1; l < 8 - i; l++) {
-				if (daneZPliku[w][i] == daneZPliku[w][l + i]) {
-					cout << "1";
-					return false;
-				}
-				else if (daneZPliku[i][w] == daneZPliku[l + i][w]) {
-					cout << "1";
-					return false;
-
-
-				}
+	else {
+		int minimalnaIloscStudentow = INT_MAX;
+		auto p = pHead;
+		auto szukanyegzaminator = pHead;
+		while (p) {
+			int iloscstudentow = policzStudentow(p);
+			if (iloscstudentow == 0) {
+				return p;
 			}
-		}
-	}
-
-	for (int w = 0; w < 9; w++) {
-		for (int i = 0; i < 3; i++) {
-			for (int l = 0; l < 3; l++) {
-				pomocniczy[w] += daneZPliku[i + (w / 3) * 3][l + (w % 3) * 3];
+			else if(minimalnaIloscStudentow > iloscstudentow){
+				szukanyegzaminator = p;
 			}
+			p = p->pNext;
 		}
+		return szukanyegzaminator;
 	}
-
-	for (int w = 0; w < 9; w++) {
-		for (int i = 0; i < 9; i++) {
-			for (int l = 1; l < 8 - i; l++) {
-				if (pomocniczy[w][i] == pomocniczy[w][l + i]) {
-					cout << "1";
-					return false;
-				}
-
-			}
-		}
-	}
-
-	return true;
 }
 
-int main() {
-	const string nazwaPliku = "sudoku.txt";
+void dodajStudenta(Student *& pGlowa, const string & nazwisko) {
+	if (not pGlowa) {
+		pGlowa = new Student{ nazwisko, nullptr , 0.0};
+	}
+	else {
+		auto k = pGlowa;
+		if (pGlowa->nazwisko > nazwisko) {
+			pGlowa = new Student{ nazwisko, pGlowa , 0.0 };
+		}
+		else if ((k->pNext) && (k->pNext->nazwisko < nazwisko)) {
+			k = k->pNext;
+			dodajStudenta(k, nazwisko);
+		}
+		else {
+			auto nowy = new Student{ nazwisko, k->pNext, 0.0};
+			k->pNext = nowy;
+			
+		}
+	}
+}
 
-	cout << sudoku(nazwaPliku);
+void dodajStudentaEgzaminatorowi(Egzaminator * pHead, const string & nazwisko) {
+	dodajStudenta(znajdzNajmniejObciazonego(pHead)->pStudenci, nazwisko);
+}
 
-	system("pause");
-	return 0;
+Student * wytnijStudenta(Student *& pGlowa, const string & naziwsko) {
+	if (pGlowa) {
+		if (pGlowa->nazwisko == naziwsko) {
+				auto student = pGlowa;
+				auto next = pGlowa->pNext;
+				delete pGlowa;
+				pGlowa = next;
+				return student;
+		}
+		else {
+		wytnijStudenta(pGlowa->pNext, naziwsko);
+		}
+	}
+}
+
+void wpiszOcene(Student *& pPrzeegzaminowani, Egzaminator * pEgzaminatorzy, const string & egzaminator, const string & student, double ocena) {
+	auto szukanyEgzaminator = znajdzEgzaminatora(pEgzaminatorzy, egzaminator);
+	auto wycietystudent = wytnijStudenta(szukanyEgzaminator->pStudenci, student);
+	pPrzeegzaminowani = new Student{ wycietystudent->nazwisko, pPrzeegzaminowani , ocena };
+
 }
