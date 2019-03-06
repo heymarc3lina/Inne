@@ -1,0 +1,110 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define SC 12
+#define SI 11
+
+int digit(int number) //funkcja zwracaj¹ca ostatni¹ cyfrê w przypadku w przypadku wyst¹pienia liczby dwucyfrowej przy mno¿eniu lub dodawaniu
+{
+	if (number > 10)
+	{
+		number = number % 10;
+	}
+	return number;
+}
+
+bool lenght(char pesel_string[])  // funkcja sprawdzaj¹ca czy podany pesel ma odpowiedni¹ d³ugoœæ
+{
+	for (int i = 0; i < SC; i++)
+	{
+		if (pesel_string[i] == '\n')
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void born(int pesel_int[]) //funkcja sprawdzaj¹ca datê narodzin osoby posiadaj¹cej podany pesel
+{
+	switch (pesel_int[2])
+	{
+	case 0: printf ("%d%d.%d%d.19%d%dr.\n", pesel_int[4], pesel_int[5], pesel_int[2], pesel_int[3], pesel_int[0], pesel_int[1]);
+		break;
+	case 2: printf ("%d%d.%d%d.20%d%dr.\n", pesel_int[4], pesel_int[5], pesel_int[2] - 2, pesel_int[3], pesel_int[0], pesel_int[1]);
+		break;
+	case 4: printf ("%d%d.%d%d.21%d%dr.\n", pesel_int[4], pesel_int[5], pesel_int[2] - 4, pesel_int[3], pesel_int[0], pesel_int[1]);
+		break;
+	case 6: printf ("%d%d.%d%d.22%d%dr.\n", pesel_int[4], pesel_int[5], pesel_int[2] - 6, pesel_int[3], pesel_int[0], pesel_int[1]);
+		break;
+	case 8: printf ("%d%d.%d%d.18%d%dr.\n", pesel_int[4], pesel_int[5], pesel_int[2] - 8, pesel_int[3], pesel_int[0], pesel_int[1]);
+		break;
+	}
+}
+
+void data(int pesel_int[]) //funkcja sprawdzaj¹ca p³eæ osoby
+{
+	if (pesel_int[9] % 2 == 0)
+	{
+		printf("Podany pesel nalezy do kobiety, urodzonej: ");
+		born(pesel_int);
+	}
+	else
+	{
+		printf("Podany pesel nalezy do mezczyzny, urodzonego: ");
+		born(pesel_int);
+	}
+}
+
+void verification(char pesel_string[]) //funkcja zaczynaj¹ca sprawdzanie peselu
+{
+	int pesel_int[SI] = { 0 };
+	int scale[4] = { 1, 3, 7, 9 }; //tablica wag do sprawdzania sumy kontrolnej
+	int i = 0;
+	if (pesel_string[0] != '\n' && lenght(pesel_string))
+	{
+		for (i = 0; i < SI; i++)
+		{
+			pesel_int[i] = pesel_string[i] - 48; //przepisanie peselu z tablicy char'ów na tablice int'ów w celu prostszej analizy peselu.
+		}
+		int checksum = 0;
+		for (i = 0; i < SI - 1; i++)
+		{
+			checksum += digit(pesel_int[i] * scale[i % 4]);
+		}
+		if (pesel_int[SI - 1] == 10 - digit(checksum))
+		{
+			printf("Numer pesel jest poprawny.\n");
+			data(pesel_int);
+		}
+		else
+		{
+			printf("Numer pesel jest niepoprawny.\n");
+		}
+	}
+	else
+	{
+		printf("Podano za krotki pesel lub uzyto niepoprawnych znakow.\n");
+	}
+}
+
+int main()
+{
+	char pesel_string[SC] = { 0 };
+	while (1)
+	{
+		printf("Kliknij klawisz 1, zeby sprawdzic pesel lub inny klawisz aby zakonczyc:");
+		switch (getch())
+		{
+		case '1':
+			printf("\nPodaj numer pesel: ");
+			fgets(pesel_string, SC, stdin);
+			verification(pesel_string);
+			break;
+		default:
+			system("pause");
+			return 0;
+		}
+	}
+}
