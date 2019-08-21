@@ -1,63 +1,121 @@
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.*;
-import javax.swing.UIManager.*;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
-public class PositiveFrame extends JFrame implements FocusListener {
-    JTextField[] value = new JTextField[3];
+public class Kalkulator extends JFrame implements ActionListener, FocusListener {
+    JButton dodawanie;
+    JButton odejmowanie;
+    JButton mnozenie;
+    JButton dzieleie;
+    JLabel equals;
+    JLabel suma;
+    JTextField pole1;
+    JTextField pole2;
+    float l1;
+    float l2;
+    float total;
 
-    public PositiveFrame() {
-        super("Wpisz liczby");
-        setSize(300, 120);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    Kalkulator() {
+        super("Kalkulator");
+        this.setSize(250, 150);
+        this.setDefaultCloseOperation(3);
+        this.setLookAndFeel();
         FlowLayout flow = new FlowLayout();
-        setLayout(flow);
-        for (int i = 0; i < 3; i++) {
-            value[i] = new JTextField("0", 5);
-            value[i].addFocusListener(this);
-            add(value[i]);
-        }
-        setVisible(true);
+        JPanel panel1 = new JPanel();
+        panel1.setLayout(flow);
+        this.pole1 = new JTextField("0", 5);
+        this.pole2 = new JTextField("0", 5);
+        this.equals = new JLabel("=");
+        this.suma = new JLabel("0");
+        this.pole1.addFocusListener(this);
+        this.pole2.addFocusListener(this);
+        this.suma.setEnabled(true);
+        panel1.add(this.pole1);
+        panel1.add(this.pole2);
+        panel1.add(this.equals);
+        panel1.add(this.suma);
+        this.add(panel1);
+        JPanel panel2 = new JPanel();
+        GridLayout family = new GridLayout(1, 4, 5, 5);
+        panel2.setLayout(family);
+        this.dodawanie = new JButton("+");
+        this.odejmowanie = new JButton("-");
+        this.mnozenie = new JButton("*");
+        this.dzieleie = new JButton("/");
+        this.dodawanie.addActionListener(this);
+        this.odejmowanie.addActionListener(this);
+        this.mnozenie.addActionListener(this);
+        this.dzieleie.addActionListener(this);
+        panel2.add(this.dodawanie);
+        panel2.add(this.odejmowanie);
+        panel2.add(this.mnozenie);
+        panel2.add(this.dzieleie);
+        panel1.add(panel2);
+        this.setVisible(true);
     }
 
-    private static void setLookAndFeel() {
-        try {
-            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
+    public void actionPerformed(ActionEvent actionEvent) {
+        Object source = actionEvent.getSource();
+        if (source == this.dodawanie) {
+            this.total = this.l1 + this.l2;
+            this.suma.setText("" + this.total);
+        }
+
+        if (source == this.odejmowanie) {
+            this.total = this.l1 - this.l2;
+            this.suma.setText("" + this.total);
+        }
+
+        if (source == this.mnozenie) {
+            this.total = this.l1 * this.l2;
+            this.suma.setText("" + this.total);
+        }
+
+        if (source == this.dzieleie) {
+            if (this.l2 == 0.0F) {
+                this.suma.setText("NIE MOŻNA DZIELIĆ PRZEZ ZERO!");
+            } else {
+                this.total = this.l1 / this.l2;
+                this.suma.setText("" + this.total);
             }
-        } catch (Exception e) {
-            System.err.println("Nie potrafię wczytać "
-                    + "systemowego wyglądu: " + e);
         }
+
     }
 
-    public static void main(String[] arguments) {
-        PositiveFrame.setLookAndFeel();
-        JFrame frame = new PositiveFrame();
-    }
-
-    public void focusGained(FocusEvent evt) {
-        checkValue(evt.getSource());
-    }
-
-    public void focusLost(FocusEvent evt) {
-        checkValue(evt.getSource());
-    }
-
-    void checkValue(Object source) {
-        JTextField field = (JTextField) source;
+    public void focusGained(FocusEvent focusEvent) {
         try {
-            int val = Integer.parseInt(field.getText());
-            if (val < 0) {
-                val = val * -1;
-                field.setText("" + val);
-            }
-        } catch (NumberFormatException exc) {
-            field.setText("0");
+            this.l1 = Float.parseFloat(this.pole1.getText());
+            this.l2 = Float.parseFloat(this.pole2.getText());
+        } catch (NumberFormatException var3) {
+            this.pole1.setText("0");
+            this.pole2.setText("0");
+            this.suma.setText("0");
         }
+
+    }
+
+    public void focusLost(FocusEvent focusEvent) {
+        this.focusGained(focusEvent);
+    }
+
+    private void setLookAndFeel() {
+        try {
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+            SwingUtilities.updateComponentTreeUI(this);
+        } catch (Exception var2) {
+            System.err.println("nie potrafię wczytać systemowego wygladu: " + var2);
+        }
+
     }
 }
 
