@@ -1,0 +1,244 @@
+#include <SFML/Graphics.hpp>
+#include <iostream>
+#include <time.h>
+
+using namespace sf;
+
+struct worm {
+	int x, y;
+} s[500]; //max lenght od worm is 500; array to stores location of each part of worm
+
+
+struct food {
+	int x, y;
+}f;
+
+class Snake {
+public:
+	int score;
+	int game;
+	int N, M, size, w, h;
+	int dir, num;  // num = lenght of worm in squares , dir = directions of worm
+	
+
+
+	int operator++() {
+		num++;
+	}
+
+	Snake() {
+		game = 0;
+		N = 30;
+		M = 20;
+		size = 16;
+		w = size*N;
+		h = size*M;
+		score = 0;
+		dir = 0;
+		num = 1;
+
+	}
+};
+
+class Move { 
+public:
+	Snake snake;
+
+	Move() = default;
+	
+	void tick() { //move function of worm
+		for (int i = snake.num; i > 0; --i) {
+			s[i].x = s[i - 1].x;  // this part is for stepwise motion of worm
+			s[i].y = s[i - 1].y;
+		}
+
+			//here we will change direction in head of worm
+		
+			if (snake.dir == 0) { 
+				s[0].y += 1; //snake head goes down 
+			}
+			if (snake.dir == 1) {
+				s[0].x -= 1; //snakes head goes left
+			}if (snake.dir == 2) {
+				s[0].x += 1; //snakes head goes right
+			}if (snake.dir == 3) {
+				s[0].y -= 1; //snakes head goes up
+			}
+
+			if ((s[0].x == f.x) && (s[0].y == f.y)) {
+				snake.num++;
+				snake.score++ ; //its increases snakes size by one square
+				f.x = rand() % snake.N;
+				f.y = rand() % snake.M;
+			}
+
+			//here is part which check if worm lives window.
+			//if it lives window it comes from opposite side
+			if(s[0].x >snake.N){
+				s[0].x = 0;
+			}
+			if(s[0].x  < 0){
+				s[0].x = snake.N;
+			}
+			if (s[0].y > snake.M) {
+				s[0].y = 0;
+			}
+			if (s[0].y < 0) {
+				s[0].y = snake.M;
+			}
+
+
+			//here  we check if snakes head touche its body
+			//if it touches its body game is over
+			for (int i = 1; i < snake.num; i++) {
+				if (s[0].x == s[i].x && s[0].y == s[i].y) {
+					snake.game = 1;
+					snake.num = i;
+				}
+			}
+	}
+	
+
+};
+
+class WindowScreen {
+public:
+	Move move;
+	Font font;
+	Text text;
+	Texture bacground;
+	Texture warm;
+	Texture food;
+
+	WindowScreen() = default;
+
+	void loadFont() {
+		if (!font.loadFromFile("orange.ttf")) {
+			std::cout << "Error in loading font file." << std::endl;
+		}
+
+		bacground.loadFromFile("grass.jpg");
+		warm.loadFromFile("snakebody.jpg");
+		food.loadFromFile("squere.jpg");
+		
+	}
+
+
+	void setText() {
+		loadFont();
+		text.setFont(font);
+		text.setCharacterSize(20);
+		text.setPosition(0, 0);
+		text.setFillColor(sf::Color::Red);
+	}
+};
+
+
+
+
+int main() {
+	srand(time(0));
+	Move move;
+	WindowScreen win;
+	RenderWindow window(VideoMode(move.snake.w, move.snake.h), "Snake");
+	win.loadFont();
+	win.setText();
+	Sprite sprite1(win.bacground);
+	Sprite sprite2(win.warm);
+	Sprite sprite3(win.food);
+
+	Clock clock;
+	float timer = 0;
+	float delay = 0.15;
+
+
+	f.x = 10;
+	f.y = 10;
+
+	while (window.isOpen()) {
+		float time = clock.getElapsedTime().asSeconds();
+		clock.restart();
+		timer += time;
+
+		Event event;
+
+		while (window.pollEvent(event)) {
+			switch (event.type) {
+			case sf::Event::Closed:
+				window.close();
+				break;
+			case sf::Event::KeyReleased:
+				switch (event.key.code) {
+				case sf::Keyboard::Up:
+					if (move.snake.dir != 0) {
+						move.snake.dir = 3;
+					}
+					break;
+				case sf::Keyboard::Down:
+					if (move.snake.dir != 3) {
+						move.snake.dir = 0;
+					}
+					break;
+				case sf::Keyboard::Right:
+					if (move.snake.dir !=1) {
+						move.snake.dir = 2;
+					}
+					break;
+				case Keyboard::Left:
+					if (move.snake.dir != 2) {
+						move.snake.dir = 1;
+					}
+					break;
+				}
+			}
+		}
+		
+
+		if (timer > delay) {
+			timer = 0;
+			move.tick();
+		}
+		
+		window.clear();
+
+		
+
+		for (int i = 0; i < move.snake.N; i++) {
+			for (int j = 0; j < move.snake.M; j++) {
+				sprite1.setPosition(i*move.snake.size, j*move.snake.size);
+				//sprite1.setScale(5.f, 5.f);
+				window.draw(sprite1);
+			}
+		}
+
+		for (int i = 0; i < move.snake.num; i++) {
+			sprite2.setPosition(s[i].x*move.snake.size, s[i].y*move.snake.size);
+			sprite2.setScale(Vector2f(0.025, 0.05));
+			window.draw(sprite2);
+		}
+
+		sprite3.setPosition(f.x*move.snake.size, f.y*move.snake.size);
+		sprite3.setScale(Vector2f(0.04, 0.04));
+		window.draw(sprite3);
+		window.draw(win.text);
+
+		if (move.snake.game) {
+			window.clear();
+			
+			win.text.setString("Oh,Game Over!  Score: " + std::to_string(long long(move.snake.score)));
+			std::cout << "Oh, Game Over!" << std::endl;
+			std::cout << "Your score: " << move.snake.score << std::endl;
+			window.draw(win.text);
+			window.display();
+			system("pause");
+			window.close();
+		}
+
+		win.text.setString("Score: " + std::to_string(long long(move.snake.score)));
+		
+		window.display();
+
+	}
+
+	return 0;
+}
