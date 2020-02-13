@@ -1,0 +1,70 @@
+import random
+zycia = 3
+tablica = []
+
+def openfile(nazwa):
+    with open(nazwa) as file:
+        data = file.read()
+        tab =data.split(" ")
+        return tab
+
+
+
+def wylosuj(plik):
+    losowa = random.choice(plik)
+    return losowa
+
+
+def wyswietlidodaj(wyraz):
+    for i in wyraz:
+        tablica.append('_')
+    for x in tablica:
+        print x ,
+
+def wyswietl():
+    for i in tablica:
+        print i,
+
+def zapytaj():
+    return raw_input("Podaj literke.\n")
+
+def sprawdz(odpowiedz, szukany):
+    if odpowiedz not in szukany:
+        global zycia
+        zycia -= 1
+        return
+    for idx, i in enumerate(szukany):
+        if odpowiedz == i:
+           tablica[idx] = odpowiedz
+
+
+
+
+
+
+
+def main():
+
+  odp = "tak"
+  global zycia
+  global tablica
+  while odp:
+      losowa =  wylosuj(openfile("wyrazy.txt"))
+      print losowa
+      wyswietlidodaj(losowa)
+      while zycia:
+        print "\nilosc Twoich zyc to: %d\n" % zycia
+        sprawdz(zapytaj(), losowa)
+        wyswietl()
+      if zycia == 0:
+         print "\nSkonczyly Ci sie zycia"
+      else:
+          print "\nWygrales!"
+      odp = raw_input("\/Czy chcesz grac dalej? \"tak\" lub \"nie\".")
+      zycia=3
+      tablica = []
+
+
+
+
+main()
