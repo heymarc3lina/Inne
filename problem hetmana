@@ -1,0 +1,86 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <Windows.h>
+using namespace std;
+
+
+bool sprawdzaniePolozeniaHetmanowNaSzachownicy(const string& nazwaPliku) {
+	ifstream plik(nazwaPliku);
+	if (!plik) {
+		return false;
+	}
+	string danezPliku[8];
+	for (int i = 0; i < 8; i++) {
+		plik >> danezPliku[i];
+	}
+	plik.close();
+	
+		for (int i = 0; i < 8; i++) {
+			int pomocnicza2 = 0;
+			int pomocnicza = 0;
+			for (int l = 0; l < 8; l++) {
+				if ('H' == danezPliku[i][l]) {
+					pomocnicza += 1;
+					if (pomocnicza > 1) {
+						return false;
+					}
+					int x = l;
+					int y = i;
+					while (x - 1 >= 0 && y - 1 >= 0) {
+						if ('H' == danezPliku[y - 1][x - 1]) {
+							return false;
+						}
+						x--;
+						y--;
+					}
+					 x = l;
+					 y = i;
+					while (x + 1 >= 0 && y + 1 >= 0 && x+1 < 8 && y+1 < 8) {
+						if ('H' == danezPliku[y + 1][x + 1]) {
+							return false;
+						}
+						x++;
+						y++;
+					}
+					 x = l;
+					 y = i;
+					while (x + 1 >= 0 && y - 1 >= 0 && x+1 <8) {
+						if ('H' == danezPliku[y - 1][x + 1]) {
+							return false;
+						}
+						x++;
+						y--;
+					}
+					 x = l;
+					 y = i;
+					while (x - 1 >= 0 && y + 1 >= 0 && y+1 <8 ) {
+						if ('H' == danezPliku[y + 1][x - 1]) {
+							return false;
+						}
+						x--;
+						y++;
+					}
+				
+				}
+				if ('H' == danezPliku[l][i]) {
+					pomocnicza2 += 1;
+					if (pomocnicza2 > 1) {
+						return false;
+					}
+
+				}
+			}
+		}
+		return true;
+		 
+}
+
+
+int main() {
+	string nazwaPliku = "szachownica.txt";
+	int pokaz = sprawdzaniePolozeniaHetmanowNaSzachownicy(nazwaPliku);
+	cout << pokaz;
+	system("pause");
+	return 0;
+}
