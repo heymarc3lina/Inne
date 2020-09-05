@@ -1,0 +1,5 @@
+Zupa_grzybowa 250 300
+Zupa_kalafiorowa 250 266
+Ryz_z_kurczakiem_w_sosie_koperkowym 100 360
+Schabowy_z_ziemniakami 120 420
+Kurczak_z_frytkami 200 500
