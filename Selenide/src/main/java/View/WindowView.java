@@ -1,3 +1,5 @@
+package View;
+
 import javax.swing.*;
 
 
@@ -6,7 +8,7 @@ import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.Selenide.open;
 
 
-public class Window extends JFrame {
+public class WindowView extends JFrame {
     private JLabel nameLabel;
     private JPanel panel;
     private JTextArea description;
@@ -17,7 +19,7 @@ public class Window extends JFrame {
 
 
 
-    public Window() {
+    public WindowView() {
        super("Wyszukiwarka");
         panel = new JPanel();
        setSize(400, 800);
@@ -47,7 +49,13 @@ public class Window extends JFrame {
     public void informationAboutSearch(String wordToSearch, String text, int numberOfSearches){
         nameLabel.setText("Hasło wyszukania: " + wordToSearch);
         nameLabel.setHorizontalTextPosition( SwingConstants.LEFT);
-        if(numberOfSearches==1) {
+       if(text == null){
+           searching.setText("Brak wyszukan!");
+           searching.setSize(20,20);
+           searching.setHorizontalTextPosition( SwingConstants.LEFT);
+           description.setVisible(false);
+       }
+        else if(numberOfSearches==1) {
             searching.setText("Liczba wyszukań: " + numberOfSearches);
             searching.setHorizontalTextPosition( SwingConstants.LEFT);
 
